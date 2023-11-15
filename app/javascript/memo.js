@@ -1,20 +1,36 @@
+const buildHTML = (XHR) => {
+    const item = XHR.response.post;
+    const html = `
+      <div class="post">
+        <div class="post-date">
+          投稿日時：${item.created_at}
+        </div>
+        <div class="post-content">
+          ${item.content}
+        </div>
+      </div>`;
+      return html;
+};
+
 function post (){
-  // getElementByIdメソッドで取得した投稿ボタンの要素を変数formに格納
   const form = document.getElementById("form");
-  // 投稿ボタンがクリックされたときにイベント発火
-  //メモが重複投稿されないようにする
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    //FormDataとは、フォームに入力された値を取得できるオブジェクト
     const formData = new FormData(form);
-    //JavaScriptを用いてサーバーとHTTP通信を行うときに利用するオブジェクト?
     const XHR = new XMLHttpRequest();
-    //リクエストの内容を指定するためのメソッド
     XHR.open("POST", "/posts", true);
-    //レスポンスのデータフォーマット（＝どのような形式のデータにするか）を指定
     XHR.responseType = "json";
-    //リクエストを送信するメソッド?
     XHR.send(formData);
+    XHR.onload = () => {
+      if (XHR.status != 200) {
+        alert(`Error ${XHR.status}: ${XHR.statusText}`);
+        return null;
+      };
+      const list = document.getElementById("list");
+      const formText = document.getElementById("content");
+        list.insertAdjacentHTML("afterend", buildHTML(XHR));
+        formText.value = "";
+    };
   });
 };
 
